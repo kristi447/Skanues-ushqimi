@@ -1,124 +1,54 @@
 # The Preca Underground
 
-Invite-only, end-to-end encrypted night chat. This repository is the **frontend**
-(React + Vite + TypeScript). It runs on phones and laptops and can be added to the
-home screen like an app.
+Invite-only, end-to-end encrypted night chat. The whole frontend is **one file**:
+[`index.html`](index.html). It has no build step and no dependencies. The fonts and
+avatars are embedded inside it, so nothing can fail to load.
 
-## Run it
+## Try it
 
-```bash
-npm install
-cp .env.example .env     # then edit
-npm run dev              # http://localhost:5173 (also on your LAN for phone testing)
-```
+Open `index.html` in a browser with the URL ending in `?gate=open` (or serve the
+folder, e.g. `python3 -m http.server`, and visit `http://localhost:8000/?gate=open`).
 
-The app only opens between `VITE_OPEN_AT` and `VITE_CLOSE_AT` (default **20:00–21:00**,
-the device's local time). While developing you can force the gate:
+- The default `BACKEND: 'mock'` runs offline with fake members. The access code is
+  `UNDERGROUND`.
+- `?gate=open` and `?gate=closed` only work in mock mode. They let you see the app
+  outside the 20:00–21:00 window.
 
-- `http://localhost:5173/?gate=open`: skip the clock screen
-- `http://localhost:5173/?gate=closed`: see the clock screen
+## Merge with your backend
 
-These overrides only exist in `npm run dev`, never in a production build.
+1. Serve `index.html` from your server.
+2. In the `CONFIG` block at the top of the script set `BACKEND: 'http'`.
+   - `API_URL: ''` means same origin.
+   - `WS_URL: ''` means `ws(s)://<host>/ws`.
+3. Implement the endpoints in the **BACKEND CONTRACT** comment right under `CONFIG`:
+   `POST /auth/verify`, `POST /users`, `POST /sessions/resume`, `GET /rooms` and the
+   `/ws` WebSocket events.
 
-With the default `VITE_BACKEND=mock` everything works offline: the access code is
-`UNDERGROUND` (change it with `VITE_MOCK_CODE`) and a few fake members chat in the room.
+Encryption happens in the browser with AES-256-GCM:
 
-```bash
-npm run build      # production bundle in dist/
-npm test           # unit tests
-npm run typecheck
-npm run format
-```
+- **proof:** derived from the access code with PBKDF2 and sent to the server. Check
+  this proof, never the raw code.
+- **key:** also derived from the code, but it never leaves the device.
 
-## Flow
+The server only ever sees ciphertext. WebCrypto requires **HTTPS** (or localhost).
 
-1. **Closed** (outside the window): analog clock with no numerals, a seconds ring that
-   ticks, and a countdown to opening.
-2. **Access**: flickering title and the access-code field. After 3 wrong codes the
-   field locks for 30 s.
-3. **Unlock**: a padlock built from live 0/1 digits decrypts, the key turns and the
-   shackle lifts.
-4. **Identity** (first visit only): alias field with flickering letters, plus avatar
-   picker.
-5. **Channels**: the single room.
-6. **Chat**:
-   - Clock top centre, with a pulsing `ENCRYPTED` badge.
-   - Friends write in green, you in neon cyan.
-   - Each friend shows a small online dot: pulsing green when online, still white when
-     offline.
+## Customise (all in `CONFIG`)
 
-When the window closes mid-session, everyone sees **CONNECTION TERMINATED**, a CRT
-power-off, then the clock screen. The server should enforce the window too.
+| Setting                  | What it does                                                |
+| ------------------------ | ----------------------------------------------------------- |
+| `ROOM_NAME`              | the single room's name                                      |
+| `OPEN_AT` / `CLOSE_AT`   | nightly window, phone's local time                          |
+| `EXTRA_AVATARS`          | add avatars: `{ id: '06', src: '/avatars/06.jpg' }`         |
+| `MAX_CODE_ATTEMPTS`, `LOCKOUT_SECONDS` | wrong-code lockout                            |
+| `NICK_MIN` / `NICK_MAX`  | alias length                                                |
 
-## Customise
-
-| What           | Where                                                                              |
-| -------------- | ---------------------------------------------------------------------------------- |
-| Room name      | `VITE_ROOM_NAME` (or return it from your backend's `/rooms`)                       |
-| Open hours     | `VITE_OPEN_AT`, `VITE_CLOSE_AT`                                                    |
-| Avatars        | Drop square images into `src/assets/avatars/` (`06-name.jpg` ...). Picked up automatically |
-| Colours        | `src/styles/global.css` → `--g` (green), `--c` (cyan)                              |
-| Alias rules    | `src/config.ts` → `nickname`                                                        |
-
-## Backend contract (`VITE_BACKEND=http`)
-
-The adapter lives in `src/api/http.ts`. Adjust paths and fields there if your server
-differs. All the UI depends on is the `Backend` interface in `src/api/types.ts`.
-
-### Encryption
-
-Message bodies are encrypted **on the device** with AES-256-GCM (WebCrypto,
-`src/api/crypto.ts`). Two independent values are derived from the access code with
-PBKDF2-SHA256 (250k iterations):
-
-- `proof` (salt `preca-underground/v1/auth`): sent to the server to prove the user
-  knows the code. **Store and compare this, never the raw code.**
-- `key` (salt `preca-underground/v1/e2ee`): never leaves the device. It
-  encrypts and decrypts messages.
-
-The server only ever sees `proof` and ciphertext (`v1.<iv b64>.<ciphertext b64>`), so it
-cannot read messages. Everyone with the same code shares the room key, so rotating the
-code rotates the key.
-
-### HTTP
-
-| Method & path           | Body                                | Response                                   |
-| ----------------------- | ----------------------------------- | ------------------------------------------ |
-| `POST /auth/verify`     | `{ proof }`                         | `200 { ticket }` · `401` wrong code · `423` outside hours |
-| `POST /users`           | `{ ticket, nickname, avatarId }`    | `{ token, user: Member }` · `4xx { error }` (e.g. alias taken) |
-| `POST /sessions/resume` | `{ ticket }` + `Authorization: Bearer <token>` | `{ token, user: Member }`        |
-| `GET /rooms`            | `Authorization: Bearer <token>`     | `[{ id, name, online? }]`                  |
-
-`Member = { id, nickname, avatarId, online }`. `avatarId` is the image file name
-without extension, for example `02-phantom`.
-
-### WebSocket: `VITE_WS_URL?token=<token>&room=<roomId>`
-
-Server → client:
-
-```jsonc
-{ "type": "history",  "messages": [WireMessage] }
-{ "type": "message",  "message": WireMessage }
-{ "type": "members",  "members": [Member] }
-{ "type": "presence", "memberId": "…", "online": true }
-{ "type": "ack",      "clientId": "…", "message": WireMessage }   // confirms your send
-```
-
-Client → server:
-
-```jsonc
-{ "type": "send", "clientId": "uuid", "ciphertext": "v1.…" }
-```
-
-`WireMessage = { id, senderId, ciphertext, sentAt /* ms epoch */ }`
-
-The client reconnects automatically with backoff when the socket drops.
+Colours are CSS variables at the top of the `<style>`: `--g` is green and `--c` is
+cyan.
 
 ## Notes
 
-- The phone keyboard is asked for dark mode (`color-scheme: dark`). iOS and most Android
-  keyboards follow it, but a user's own keyboard settings can override it.
-- Animations are transform/opacity/canvas only and time-based. The unlock sequence
-  has a hard fallback timer, so it always completes even on a slow phone. Users with
-  "reduce motion" turned on get calmer versions.
-- `docs/reference/` holds the visual references the design was built from.
+- Animations always run, including on phones with "Reduce Motion" on, because
+  they're part of the experience.
+- Every animation is driven by elapsed time and torn down with its screen. The
+  unlock sequence has a hard fallback timer, so it always completes.
+- `docs/reference/` holds the visual references the design follows.
