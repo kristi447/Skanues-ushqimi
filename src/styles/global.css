@@ -1,0 +1,322 @@
+@import '@fontsource/vt323/400.css';
+@import '@fontsource/courier-prime/700.css';
+
+:root {
+  color-scheme: dark;
+
+  /* Phosphor palette, as RGB channels so alpha can vary: rgb(var(--g) / .5) */
+  --g: 66 255 104;
+  --c: 64 240 255;
+  --r: 255 72 72;
+  --w: 226 232 228;
+
+  --green: rgb(var(--g));
+  --cyan: rgb(var(--c));
+  --red: rgb(var(--r));
+  --dim: rgb(var(--g) / 0.55);
+  --faint: rgb(var(--g) / 0.22);
+  --hair: rgb(var(--g) / 0.14);
+
+  --glow: 0 0 1px rgb(var(--g) / 0.9), 0 0 6px rgb(var(--g) / 0.42), 0 0 16px rgb(var(--g) / 0.16);
+  --glow-c: 0 0 1px rgb(var(--c) / 0.9), 0 0 6px rgb(var(--c) / 0.45), 0 0 16px rgb(var(--c) / 0.18);
+  --glow-r: 0 0 1px rgb(var(--r) / 0.9), 0 0 8px rgb(var(--r) / 0.5);
+
+  --mono: 'VT323', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --type: 'Courier Prime', 'Courier New', Courier, monospace;
+
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: #000;
+}
+
+body {
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 20px;
+  line-height: 1.2;
+  text-shadow: var(--glow);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+::selection {
+  background: rgb(var(--g) / 0.85);
+  color: #000;
+  text-shadow: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+  color-scheme: dark;
+  text-shadow: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 1px dashed var(--dim);
+  outline-offset: 3px;
+}
+
+.app {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--app-top, 0px);
+  height: var(--app-h, 100%);
+  overflow: hidden;
+  background: #000;
+}
+
+.app__screen {
+  position: absolute;
+  inset: 0;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--safe-t) + 16px) calc(var(--safe-r) + 16px) calc(var(--safe-b) + 16px) calc(var(--safe-l) + 16px);
+  animation: crt-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes crt-in {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.96);
+    filter: brightness(2.2) blur(1.5px);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* ---------- Shared terminal primitives ---------- */
+
+.label {
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--faint) 12%, var(--faint) 88%, transparent);
+  box-shadow: 0 0 6px rgb(var(--g) / 0.18);
+  border: 0;
+  margin: 0;
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 48px;
+  padding: 0 22px;
+  font-size: 20px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--green);
+  border: 1px solid var(--faint);
+  background: rgb(var(--g) / 0.03);
+  box-shadow: inset 0 0 18px rgb(var(--g) / 0.05);
+  transition:
+    background 160ms,
+    border-color 160ms,
+    color 160ms,
+    box-shadow 160ms;
+}
+
+.btn::before,
+.btn::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--green);
+  opacity: 0.8;
+}
+
+.btn::before {
+  left: -1px;
+  top: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.btn::after {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+.btn:hover:not(:disabled),
+.btn:focus-visible {
+  background: rgb(var(--g) / 0.1);
+  border-color: var(--dim);
+  outline: none;
+}
+
+.btn:active:not(:disabled) {
+  background: var(--green);
+  color: #000;
+  text-shadow: none;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.blink {
+  animation: blink 1.06s steps(1, end) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- CRT overlay (whole app) ---------- */
+
+.crt {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.crt__scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0) 0,
+    rgb(0 0 0 / 0) 2px,
+    rgb(0 0 0 / 0.3) 3px,
+    rgb(0 0 0 / 0) 4px
+  );
+}
+
+.crt__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 90% at 50% 50%, transparent 58%, rgb(0 0 0 / 0.6) 100%);
+}
+
+.crt__flicker {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  animation: crt-flicker 6.4s infinite;
+}
+
+@keyframes crt-flicker {
+  0%,
+  17%,
+  19%,
+  54%,
+  56.5%,
+  81%,
+  82.5%,
+  100% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.07;
+  }
+  55% {
+    opacity: 0.04;
+  }
+  56% {
+    opacity: 0.09;
+  }
+  82% {
+    opacity: 0.05;
+  }
+}
+
+.crt__roll {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22vh;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--g) / 0),
+    rgb(var(--g) / 0.02) 55%,
+    rgb(var(--g) / 0.038) 92%,
+    rgb(var(--g) / 0)
+  );
+  animation: crt-roll 8.5s linear infinite;
+  will-change: transform;
+}
+
+@keyframes crt-roll {
+  from {
+    transform: translateY(-25vh);
+  }
+  to {
+    transform: translateY(105vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt__roll,
+  .crt__flicker {
+    animation: none;
+    display: none;
+  }
+  .screen {
+    animation-duration: 1ms;
+  }
+}

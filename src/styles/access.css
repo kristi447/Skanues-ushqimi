@@ -1,0 +1,121 @@
+.access {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bootlog {
+  position: relative;
+  align-self: stretch;
+  margin: 0;
+  min-height: 4.4em;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: rgb(var(--g) / 0.38);
+  text-shadow: 0 0 6px rgb(var(--g) / 0.18);
+  white-space: pre;
+}
+
+.access__center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 520px;
+}
+
+.access__sub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 18px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--dim);
+  white-space: nowrap;
+  justify-content: center;
+}
+
+.access__sub-rule {
+  flex: 1;
+  max-width: 64px;
+  height: 1px;
+  background: var(--faint);
+}
+
+.access__form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  width: 100%;
+  margin-top: clamp(32px, 8vh, 64px);
+}
+
+.access__status {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  min-height: 20px;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+}
+
+.access__status--error {
+  color: var(--red);
+  text-shadow: var(--glow-r);
+}
+
+.access__detail {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: rgb(var(--r) / 0.75);
+  text-shadow: none;
+}
+
+.access__status--ok {
+  color: var(--green);
+}
+
+.access__hint {
+  color: rgb(var(--g) / 0.35);
+}
+
+.spinner {
+  display: inline-block;
+  width: 1ch;
+  margin-right: 0.6em;
+  color: var(--green);
+}
+
+.access__btn {
+  align-self: center;
+  min-width: 200px;
+  margin-top: 6px;
+}
+
+.access__foot {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: rgb(var(--g) / 0.32);
+  text-shadow: none;
+}
+
+@media (max-width: 420px) {
+  .access__foot {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+}

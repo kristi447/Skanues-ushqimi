@@ -1,0 +1,237 @@
+.register {
+  padding: 0;
+}
+
+.register__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: calc(var(--safe-t) + 20px) calc(var(--safe-r) + 16px) calc(var(--safe-b) + 28px) calc(var(--safe-l) + 16px);
+  scrollbar-width: none;
+}
+
+.register__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.register__scroll > * {
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.register__head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.register__title {
+  margin: 28px auto 8px;
+  font-size: clamp(32px, 9vw, 44px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.register__lede {
+  margin-top: 0;
+  margin-bottom: 28px;
+  font-size: 18px;
+  color: var(--dim);
+  text-shadow: none;
+}
+
+.register__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.register__hint {
+  min-height: 18px;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: rgb(var(--g) / 0.38);
+  text-shadow: none;
+}
+
+.register__hint.is-error {
+  color: var(--red);
+  text-shadow: var(--glow-r);
+}
+
+.register__avatars {
+  margin: 18px 0 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.register__avatars legend {
+  padding: 0;
+  margin-bottom: 12px;
+}
+
+.register__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 10px;
+}
+
+.mark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--hair);
+  background: #000;
+  text-align: left;
+  transition:
+    border-color 200ms,
+    box-shadow 200ms;
+}
+
+.mark__img {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #000;
+}
+
+.mark__img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.5;
+  filter: grayscale(0.5) brightness(0.85);
+  transition:
+    opacity 260ms,
+    filter 260ms,
+    transform 400ms;
+}
+
+/* Scanlines over each mark */
+.mark__scan {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.35) 2px 3px);
+  pointer-events: none;
+}
+
+.mark__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--g) / 0.4);
+  text-shadow: none;
+}
+
+.mark__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mark:hover .mark__img img {
+  opacity: 0.75;
+}
+
+.mark.is-on {
+  border-color: rgb(var(--g) / 0.6);
+  box-shadow:
+    0 0 0 1px rgb(var(--g) / 0.15),
+    0 0 18px rgb(var(--g) / 0.18),
+    inset 0 0 14px rgb(var(--g) / 0.1);
+}
+
+.mark.is-on .mark__img img {
+  opacity: 1;
+  filter: none;
+  animation: mark-lock 420ms steps(1, end);
+}
+
+.mark.is-on .mark__meta {
+  color: var(--green);
+  text-shadow: var(--glow);
+}
+
+.mark.is-on::before,
+.mark.is-on::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid var(--green);
+}
+
+.mark.is-on::before {
+  left: -4px;
+  top: -4px;
+  border-width: 2px 0 0 2px;
+}
+
+.mark.is-on::after {
+  right: -4px;
+  bottom: -4px;
+  border-width: 0 2px 2px 0;
+}
+
+@keyframes mark-lock {
+  0% {
+    opacity: 0.2;
+    transform: translateX(3px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-2px);
+  }
+  40% {
+    opacity: 0.5;
+    transform: none;
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+.register__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px dashed var(--hair);
+}
+
+.register__preview-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+}
+
+.register__preview-av {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--hair);
+  object-fit: cover;
+}
+
+.register__preview-nick {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.register__btn {
+  margin-top: 22px;
+  align-self: stretch;
+}

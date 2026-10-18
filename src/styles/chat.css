@@ -1,0 +1,403 @@
+.chat {
+  /* On wide screens the conversation stays a readable centred column. */
+  --gutter-l: max(calc(var(--safe-l) + 14px), calc((100% - 860px) / 2));
+  --gutter-r: max(calc(var(--safe-r) + 14px), calc((100% - 860px) / 2));
+  padding: 0;
+  background: #000;
+}
+
+.chat__top {
+  position: relative;
+  z-index: 2;
+  padding: calc(var(--safe-t) + 10px) var(--gutter-r) 0 var(--gutter-l);
+  background: #000;
+}
+
+.chat__channel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 10px;
+  border-bottom: 1px solid var(--hair);
+  box-shadow:
+    0 1px 0 rgb(0 0 0),
+    0 6px 14px -10px rgb(var(--g) / 0.3);
+}
+
+.chat__room {
+  flex: 1;
+  min-width: 0;
+  font-size: 22px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat__link {
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+}
+
+.chat__link--lost {
+  color: var(--red);
+  text-shadow: var(--glow-r);
+}
+
+.chat__link .spinner {
+  margin-right: 0.3em;
+  color: inherit;
+}
+
+.chat__roster-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  color: var(--dim);
+}
+
+.chat__roster-btn:hover,
+.chat__roster-btn[aria-expanded='true'] {
+  color: var(--green);
+}
+
+.roster {
+  position: absolute;
+  right: var(--gutter-r);
+  top: 100%;
+  z-index: 5;
+  min-width: 220px;
+  margin: 6px 0 0;
+  padding: 8px 0;
+  list-style: none;
+  background: #000;
+  border: 1px solid var(--faint);
+  box-shadow:
+    0 10px 30px rgb(0 0 0 / 0.9),
+    0 0 20px rgb(var(--g) / 0.08);
+  animation: crt-in 240ms ease-out both;
+}
+
+.roster__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  font-size: 18px;
+}
+
+.roster__item.is-off {
+  color: var(--dim);
+  text-shadow: none;
+}
+
+.roster__item.is-off .avatar {
+  opacity: 0.45;
+}
+
+.roster__nick {
+  flex: 1;
+}
+
+.roster__me {
+  color: var(--dim);
+}
+
+/* ---------- Feed ---------- */
+
+.chat__feed {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px var(--gutter-r) 12px var(--gutter-l);
+  scrollbar-width: thin;
+  scrollbar-color: var(--faint) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat__feed::-webkit-scrollbar {
+  width: 3px;
+}
+
+.chat__feed::-webkit-scrollbar-thumb {
+  background: var(--faint);
+}
+
+.chat__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 15px;
+  letter-spacing: 0.22em;
+  color: var(--dim);
+}
+
+.sys {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(var(--g) / 0.4);
+  text-shadow: none;
+}
+
+.sys::before,
+.sys::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hair);
+}
+
+.msg {
+  position: relative;
+  max-width: min(88%, 640px);
+  margin-top: 4px;
+  color: var(--green);
+}
+
+.msg.is-head {
+  margin-top: 18px;
+}
+
+.msg__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.msg__nick {
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.msg__time {
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: rgb(var(--g) / 0.4);
+  text-shadow: none;
+}
+
+.msg__head .msg__time {
+  margin-left: 4px;
+}
+
+/* A rail runs down from the avatar through the sender's grouped lines. */
+.msg__body {
+  padding: 1px 0 1px 18px;
+  margin-left: 10px;
+  border-left: 1px solid rgb(var(--g) / 0.16);
+  font-size: 21px;
+  line-height: 1.18;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.msg.is-live .msg__body {
+  animation: msg-in 380ms ease-out both;
+}
+
+@keyframes msg-in {
+  0% {
+    background: rgb(var(--g) / 0.12);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* ---------- Your messages: neon cyan ---------- */
+
+.msg--mine {
+  margin-left: auto;
+  color: var(--cyan);
+  text-shadow: var(--glow-c);
+}
+
+.msg--mine .msg__head {
+  justify-content: flex-end;
+}
+
+.msg--mine .msg__time {
+  color: rgb(var(--c) / 0.45);
+}
+
+.msg__you {
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  color: rgb(var(--c) / 0.6);
+}
+
+.msg--mine .msg__body {
+  margin: 0 10px 0 0;
+  padding: 1px 18px 1px 0;
+  border-left: 0;
+  border-right: 1px solid rgb(var(--c) / 0.22);
+  text-align: right;
+  animation: msg-tx 420ms steps(1, end) both;
+}
+
+@keyframes msg-tx {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.4;
+  }
+  45% {
+    opacity: 1;
+  }
+}
+
+.msg__state {
+  margin: 4px 28px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-align: right;
+  color: rgb(var(--c) / 0.5);
+  text-shadow: none;
+}
+
+.msg__state--sending {
+  animation: blink 0.9s steps(1, end) infinite;
+}
+
+.msg__state--failed button {
+  min-height: 28px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--red);
+  text-shadow: var(--glow-r);
+}
+
+.chat__unseen {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-b) + 82px);
+  z-index: 3;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  background: #000;
+  border: 1px solid var(--dim);
+  box-shadow: 0 0 16px rgb(var(--g) / 0.2);
+  animation: crt-in 260ms ease-out both;
+}
+
+/* ---------- Composer ---------- */
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 12px var(--gutter-r) calc(var(--safe-b) + 12px) var(--gutter-l);
+  border-top: 1px solid var(--hair);
+  background: #000;
+}
+
+.composer__prompt {
+  padding-bottom: 9px;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--dim);
+}
+
+.composer__field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Textarea and mirror must share every metric so the cursor lands on the right glyph. */
+.composer__text {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 0;
+  border: 0;
+  font-family: var(--mono);
+  font-size: 22px;
+  line-height: 26px;
+  letter-spacing: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  tab-size: 4;
+}
+
+textarea.composer__text {
+  resize: none;
+  min-height: 42px;
+  max-height: 140px;
+  overflow-y: auto;
+  background: transparent;
+  color: var(--green);
+  caret-color: transparent;
+  outline: none;
+  scrollbar-width: none;
+}
+
+textarea.composer__text::-webkit-scrollbar {
+  display: none;
+}
+
+textarea.composer__text::placeholder {
+  color: rgb(var(--g) / 0.28);
+  text-shadow: none;
+}
+
+textarea.composer__text:focus::placeholder {
+  color: transparent;
+}
+
+.composer__mirror {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: transparent;
+  text-shadow: none;
+  pointer-events: none;
+}
+
+.composer__mirror .tcursor {
+  --cursor-gap: 0;
+  width: auto;
+  min-width: 1ch;
+  margin-right: 0;
+}
+
+.composer__send {
+  min-height: 42px;
+  padding: 0 4px 0 10px;
+  font-size: 17px;
+  letter-spacing: 0.24em;
+  color: var(--green);
+  transition:
+    opacity 160ms,
+    color 160ms;
+}
+
+.composer__send:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.composer__send:not(:disabled):active {
+  color: var(--cyan);
+  text-shadow: var(--glow-c);
+}
